@@ -1,0 +1,115 @@
+Interface
+---------------------------------------------
+
+package com.RMI.rmiinterface;
+
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface RMIInterface extends Remote {
+
+    public String TextSearch(String name) throws RemoteException;
+
+}
+------------------------------------------------
+server
+-----------------------------------------------
+package com.RMI.rmiserver;
+
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.Scanner;
+
+import com.RMI.rmiinterface.RMIInterface;
+public class ServerOperation extends UnicastRemoteObject implements RMIInterface{
+
+    private static final long serialVersionUID = 1L;
+
+    protected ServerOperation() throws RemoteException {
+
+        super();
+
+    }
+    @Override
+    public String TextSearch(String name) throws RemoteException{
+    	String m = null;
+    	try {
+			
+			File f = new File("D:\\PhatTrienHeThongTichHop\\src\\com\\RMI\\rmiserver\\lib.txt");
+			FileReader fr = new FileReader(f);
+			//
+			BufferedReader br = new BufferedReader(fr);
+			Scanner c = new Scanner(f,"UTF-8");
+			while(c.hasNextLine()) {
+			String line = c.nextLine();
+			if(line.contentEquals(name)) {
+				m = " has in library";
+			}
+			}
+			if(m == null) {
+				m = " hasn't in library";
+			}
+			c.close();
+			fr.close();
+			br.close();	
+        }
+		catch(IOException ex) {
+			ex.printStackTrace();
+		}
+        System.err.println(name + " is trying to contact!");
+        return "Book name :" + name +m;
+
+    }
+    public static void main(String[] args){
+
+        try {
+            Naming.rebind("//localhost/MyServer", new ServerOperation());
+            System.err.println("Server ready");
+        } catch (Exception e) {
+
+            System.err.println("Server exception: " + e.toString());
+            e.printStackTrace();
+
+        }
+
+    }
+
+}
+------------------------------------------------------------------
+Client
+------------------------------------------------------------------
+package com.RMI.rmiclient;
+
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+
+import javax.swing.JOptionPane;
+
+import com.RMI.rmiinterface.RMIInterface;
+
+public class ClientOperation {
+
+	private static RMIInterface look_up;
+
+	public static void main(String[] args)
+		throws MalformedURLException, RemoteException, NotBoundException {
+
+		look_up = (RMIInterface) Naming.lookup("//localhost/MyServer");
+		String txt = JOptionPane.showInputDialog("Book Name?");
+
+		String response = look_up.TextSearch(txt);
+		JOptionPane.showMessageDialog(null, response);
+
+	}
+
+}
+
