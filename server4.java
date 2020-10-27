@@ -11,7 +11,7 @@ public class server4 {
 	
 
 	
-		public static final int port = 9191;
+		public static final int port = 9126;
 
 		public static void main(String[] args) throws IOException {
 			ServerSocket serverSocket = new ServerSocket(port);
